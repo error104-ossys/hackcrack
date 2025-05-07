@@ -398,41 +398,4 @@ def main():
     print(f"Noor: Estimated time to crack: {crack_time_str}")
     print(RESET_ALL)
 
-import hashlib
-import re
-def analyze_password(password):
-    # Check password characteristics
-    has_upper = bool(re.search(r'[A-Z]', password))
-    has_lower = bool(re.search(r'[a-z]', password))
-    has_digit = bool(re.search(r'[0-9]', password))
-    has_special = bool(re.search(r'[\W_]', password))
-    # Determine password type
-    password_type = []
-    if has_upper:
-        password_type.append('Uppercase Letters')
-    if has_lower:
-        password_type.append('Lowercase Letters')
-    if has_digit:
-        password_type.append('Digits')
-    if has_special:
-        password_type.append('Special Characters')
-    # Calculate hash
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
-    # Estimate strength
-    length = len(password)
-    strength = 'Weak'
-    if length >= 8 and (has_upper + has_lower + has_digit + has_special) >= 3:
-        strength = 'Strong'
-    elif length >= 6:
-        strength = 'Moderate'
-    return password_type, password_hash, strength
-def main():
-    password = input("Enter a password to analyze: ")
-    password_type, password_hash, strength = analyze_password(password)
-    print("\nPassword Analysis:")
-    print(f"Password: {password}")
-    print(f"Type: {', '.join(password_type) if password_type else 'None'}")
-    print(f"Hash (SHA-256): {password_hash}")
-    print(f"Strength: {strength}")
-if __name__ == "__main__":
-    main()
+
