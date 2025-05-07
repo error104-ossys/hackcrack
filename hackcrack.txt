@@ -1,0 +1,438 @@
+#!/usr/bin/env python3
+import time
+import sys
+import random
+
+# ANSI color codes
+GREEN = '\\033[92m'
+BLACK = '\\033[30m'
+RESET = '\\033[0m'
+
+def print_green(text):
+    print(f"{GREEN}{text}{RESET}")
+
+def print_black(text):
+    # Black on black will be invisible on most terminals.
+    # Instead, print in dim white for readability in dark terminals.
+    # Using ANSI dim code
+    DIM = '\\033[2m'
+    print(f"{DIM}{text}{RESET}")
+
+def loading_animation():
+    for _ in range(3):
+        for dots in ['.', '..', '...']:
+            print_green(f"Trying to find password{dots}")
+            time.sleep(0.4)
+            # Move cursor up and clear line
+            print("\\033[F\\033[K", end='')
+
+def main():
+    print_green("Welcome to Linux Password Finder App!")
+    print("Please choose a password finder from the list below:")
+    options = ['Instagram', 'Facebook', 'Twitter', 'Snapchat', 'Windows', 'TikTok']
+    for i, option in enumerate(options, 1):
+        print_green(f"{i}. {option}")
+    print()
+
+    # Input choice
+    while True:
+        choice = input("Enter the number of the password finder you want to use: ").strip()
+        if choice.isdigit():
+            choice_num = int(choice)
+            if 1 <= choice_num <= len(options):
+                break
+        print("Invalid choice. Please enter a valid number from the list.")
+
+    selected_service = options[choice_num - 1]
+    print_green(f"You selected: {selected_service}")
+
+    # Input user identity info
+    name = input("Enter your full name: ").strip()
+    username = input("Enter your username/ID for the service: ").strip()
+    phone = input("Enter your phone number linked to the account: ").strip()
+
+    print_green(f"Verifying your identity for {selected_service} account...")
+    loading_animation()
+
+    print_green("Starting password recovery attempts...")
+    time.sleep(0.5)
+
+    # Simulate password trials from 10 to 10,000
+    found_password = None
+    attempt_found = random.randint(100, 2000)  # randomly "found" between these attempts
+
+    try:
+        for attempt in range(10, 10001, 10):
+            # Print attempt info in green
+            print_green(f"Attempting password #{attempt}: ", end='')
+            # Simulate trial password in black-ish (dim)
+            trial_password = f"pass{attempt}"
+            # Print without newline so password is black/dim next to green text
+            # We'll print "Attempting password #xx: " green, then trial password dim
+            # But print_green already prints newline - so custom print line.
+            # We'll do inline print with ANSI codes:
+            sys.stdout.write(f"{trial_password}\r")
+            sys.stdout.flush()
+            # Wait a bit
+            time.sleep(0.0015)
+
+            if attempt >= attempt_found:
+                found_password = trial_password
+                break
+        print()  # newline after loop
+    except KeyboardInterrupt:
+        print("\nProcess interrupted by user.")
+        sys.exit(1)
+
+    print_green(f"Password found successfully!")
+    print(f"User: {name}")
+    print(f"Username: {username}")
+    print(f"Phone number: {phone}")
+    # Print found password in dim/black style but visible
+    print_black(f"Recovered Password: {found_password}")
+
+    print_green("Remember to use this tool responsibly and only for your own accounts.")
+
+import time
+import random
+import string
+
+def get_user_consent():
+    print("Password Recovery Tool")
+    consent = input("Do you have the explicit consent to attempt password recovery for this account? (yes/no): ").lower()
+    if consent != 'yes':
+        print("You need explicit consent to recover passwords. Exiting.")
+        exit()
+    return True
+
+def get_app_name():
+    print("\nWhich app would you like to recover the password for?")
+    app_name = input("Enter the app name (e.g., Instagram, Facebook, etc.): ").lower()
+    return app_name
+
+def get_username(app_name):
+    username = input(f"\nEnter the username for the {app_name} account: ")
+    print(f"Searching for account: {username}...")
+    time.sleep(2)
+    # Simulate the account lookup (in a real app, you'd connect to the API or database to verify)
+    account_exists = random.choice([True, False])  # Simulate random success/failure
+    if not account_exists:
+        print(f"[!] Account with username {username} not found.")
+        exit()
+    return username
+
+def get_password_parameters():
+    print("\nEnter the password recovery parameters.")
+    length = int(input("Enter the minimum password length: "))
+    max_length = int(input("Enter the maximum password length: "))
+    chars = input("Enter character set for the password (e.g., 'abcdefghijklmnopqrstuvwxyz0123456789!@#'): ")
+    return length, max_length, chars
+
+def generate_passwords(length, max_length, chars):
+    """Generate all possible passwords based on the parameters."""
+    passwords = []
+    for password_length in range(length, max_length + 1):
+        passwords += [''.join(random.choices(chars, k=password_length)) for _ in range(100)]  # Generating 100 passwords per length
+    return passwords
+
+def simulate_password_check(password, username):
+    """Simulate checking if a password is correct for the given username (this is where an API call would go)."""
+    correct_password = "password123"  # This is just an example. Replace with a real method.
+    if password == correct_password:
+        return True
+    return False
+
+def password_crack(length, max_length, chars, username):
+    print(f"\nStarting password recovery for {username}...")
+    passwords = generate_passwords(length, max_length, chars)
+    
+    for password in passwords:
+        print(f"Testing password: {password}...")
+        time.sleep(1)  # Simulating a delay
+        if simulate_password_check(password, username):
+            print(f"\nPassword found: {password}")
+            break
+    else:
+        print("[!] No matching password found.")
+
+def main():
+    get_user_consent()  # Step 1: Get user consent
+    app_name = get_app_name()  # Step 2: Get app name
+    username = get_username(app_name)  # Step 3: Get username and check if account exists
+    length, max_length, chars = get_password_parameters()  # Step 4: Get password parameters
+    password_crack(length, max_length, chars, username)  # Step 5: Attempt to recover the password
+import hashlib
+import itertools
+import time
+import sys
+
+def show_license():
+    print("=== INTERNAL PASSWORD RECOVERY TOOL ===")
+    print("\nLICENSE & AUTHORIZATION NOTICE")
+    print("--------------------------------------")
+    print("This tool is for internal company use only.")
+    print("You must have explicit authorization to recover passwords.")
+    print("Use on unauthorized systems or accounts is strictly prohibited.")
+    agreement = input("\nDo you confirm that you are authorized to use this tool? (yes/no): ").strip().lower()
+    if agreement != 'yes':
+        print("Access denied. Exiting.")
+        sys.exit()
+
+def get_target_info():
+    print("\nSupported hash types: sha256, sha512, md5")
+    hash_type = input("Enter the hash type of the password: ").strip().lower()
+    if hash_type not in ('sha256', 'sha512', 'md5'):
+        print("Unsupported hash type.")
+        sys.exit()
+    hash_input = input("Enter the password hash to recover: ").strip()
+    return hash_type, hash_input
+
+def get_password_parameters():
+    print("\nPassword generation options:")
+    min_len = int(input("Minimum password length: "))
+    max_len = int(input("Maximum password length: "))
+    charset = input("Enter characters to try (e.g., abc123!@#): ")
+    return min_len, max_len, charset
+
+def hash_password(password, hash_type):
+    if hash_type == 'sha256':
+        return hashlib.sha256(password.encode()).hexdigest()
+    elif hash_type == 'sha512':
+        return hashlib.sha512(password.encode()).hexdigest()
+    elif hash_type == 'md5':
+        return hashlib.md5(password.encode()).hexdigest()
+    return None
+
+def recover_password(hash_type, hash_input, min_len, max_len, charset):
+    print("\n[+] Starting password recovery...\n")
+    for length in range(min_len, max_len + 1):
+        for pwd_tuple in itertools.product(charset, repeat=length):
+            pwd = ''.join(pwd_tuple)
+            hashed = hash_password(pwd, hash_type)
+            print(f"Trying: {pwd}")
+            time.sleep(0.1)
+            if hashed == hash_input:
+                print(f"\n[✓] Password successfully recovered: {pwd}")
+                return
+    print("[!] Password not found in given parameters.")
+
+def main():
+    show_license()
+    hash_type, hash_input = get_target_info()
+    min_len, max_len, charset = get_password_parameters()
+    recover_password(hash_type, hash_input, min_len, max_len, charset)
+
+import time
+import itertools
+
+def get_user_info():
+    print("=== PASSWORD MEMORY HELPER ===\n")
+    print("This tool helps generate password guesses based on what the user remembers.\n")
+    print("Please provide as many hints as possible to generate smarter guesses.\n")
+
+    name = input("First name or nickname (press Enter to skip): ").strip()
+    birth_year = input("Birth year (e.g., 1995): ").strip()
+    fav_word = input("Favorite word or phrase: ").strip()
+    special_chars = input("Any special characters you might have used (e.g., !@#): ").strip()
+    numbers = input("Any common numbers you use (e.g., 123, 007): ").strip()
+
+    return name, birth_year, fav_word, special_chars, numbers
+
+def generate_guesses(name, year, word, special_chars, numbers):
+    guesses = set()
+
+    base_parts = [name, word, year, numbers]
+    base_parts = [part for part in base_parts if part]
+
+    print("\n[+] Generating guesses...\n")
+
+    # Simple combos
+    for part in base_parts:
+        guesses.add(part)
+        guesses.add(part.lower())
+        guesses.add(part.capitalize())
+        guesses.add(part.upper())
+
+    # Combine with special chars
+    for part in base_parts:
+        for char in special_chars:
+            guesses.add(f"{part}{char}")
+            guesses.add(f"{char}{part}")
+
+    # Combine parts together
+    for a, b in itertools.permutations(base_parts, 2):
+        guesses.add(f"{a}{b}")
+        for char in special_chars:
+            guesses.add(f"{a}{char}{b}")
+            guesses.add(f"{a}{b}{char}")
+
+    # Add common suffixes/prefixes
+    for part in base_parts:
+        guesses.add(part + "123")
+        guesses.add(part + "2024")
+        guesses.add(part + "@123")
+        guesses.add("!" + part)
+        guesses.add(part + "!")
+
+    return sorted(guesses)
+
+def main():
+    name, year, word, special_chars, numbers = get_user_info()
+    guesses = generate_guesses(name, year, word, special_chars, numbers)
+
+    print(f"\n[✓] Generated {len(guesses)} password guesses.\n")
+    for guess in guesses:
+        print(guess)
+        time.sleep(0.05)  # slight delay for realism
+
+    print("\nTry these guesses in the official password recovery tools or login pages.")
+    print("Remember: If you can't recover it, use official reset tools or support.")
+
+#!/usr/bin/env python3
+import math
+import sys
+import time
+import re
+
+try:
+    import colorama
+    from colorama import Fore, Back, Style
+except ImportError:
+    print("This script requires the 'colorama' module. Install it by running:")
+    print("pip install colorama")
+    sys.exit(1)
+
+colorama.init(autoreset=False)
+
+GREEN = Fore.GREEN
+BLACK_BG = Back.BLACK
+RESET_ALL = Style.RESET_ALL
+
+def clear_screen():
+    # Clear terminal screen and move cursor to top-left
+    print(BLACK_BG + GREEN + "\033[2J\033[H", end='')
+
+def password_strength(password):
+    # Character sets
+    length = len(password)
+    lowers = bool(re.search(r'[a-z]', password))
+    uppers = bool(re.search(r'[A-Z]', password))
+    digits = bool(re.search(r'\d', password))
+    symbols = bool(re.search(r'\W', password))
+
+    # Calculate pool size for entropy estimate
+    pool = 0
+    if lowers:
+        pool += 26
+    if uppers:
+        pool += 26
+    if digits:
+        pool += 10
+    if symbols:
+        # Approximate number of symbols on US keyboard
+        pool += 33
+
+    # Avoid zero pool size (empty password)
+    if pool == 0 or length == 0:
+        return 0, 0
+
+    # Calculate entropy = log2(pool^length) = length * log2(pool)
+    entropy = length * math.log2(pool)
+
+    # Estimation of crack time in seconds:
+    # Assume attacker can test 10 billion (10^10) guesses per second (modern GPU cluster)
+    guesses_per_sec = 1e10
+    guesses = 2 ** entropy
+    crack_time_sec = guesses / guesses_per_sec
+
+    return entropy, crack_time_sec
+
+def crack_time_to_str(seconds):
+    # Format seconds in human-readable form (seconds, minutes, hours, days, years)
+    intervals = (
+        ('years', 31536000),
+        ('days', 86400),
+        ('hours', 3600),
+        ('minutes', 60),
+        ('seconds', 1),
+    )
+
+    for name, count in intervals:
+        if seconds >= count:
+            value = seconds / count
+            return f"{value:.2f} {name}"
+    return "less than a second"
+
+def strength_status(entropy, crack_time):
+    # Define threshold for weak, medium, strong based on entropy and crack time
+    # Adjust thresholds for practical feedback
+
+    if entropy < 28 or crack_time < 60:
+        return "Weak"
+    elif entropy < 50 or crack_time < 86400:
+        return "Medium"
+    else:
+        return "Strong"
+
+def main():
+    clear_screen()
+
+    print(BLACK_BG + GREEN)
+    print("Noor: Hi! How can I help you today?")
+    time.sleep(1)
+    print("Noor: Please enter your password for strength analysis:")
+    print(RESET_ALL, end='')
+
+    password = input()
+    entropy, crack_time_sec = password_strength(password)
+
+    if entropy == 0:
+        print(BLACK_BG + GREEN + "Noor: You entered an empty password or invalid input. Please try again." + RESET_ALL)
+        return
+
+    crack_time_str = crack_time_to_str(crack_time_sec)
+    status = strength_status(entropy, crack_time_sec)
+
+    print(BLACK_BG + GREEN)
+    print(f"Noor: Your password strength status: {status}")
+    print(f"Noor: Estimated time to crack: {crack_time_str}")
+    print(RESET_ALL)
+
+import hashlib
+import re
+def analyze_password(password):
+    # Check password characteristics
+    has_upper = bool(re.search(r'[A-Z]', password))
+    has_lower = bool(re.search(r'[a-z]', password))
+    has_digit = bool(re.search(r'[0-9]', password))
+    has_special = bool(re.search(r'[\W_]', password))
+    # Determine password type
+    password_type = []
+    if has_upper:
+        password_type.append('Uppercase Letters')
+    if has_lower:
+        password_type.append('Lowercase Letters')
+    if has_digit:
+        password_type.append('Digits')
+    if has_special:
+        password_type.append('Special Characters')
+    # Calculate hash
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    # Estimate strength
+    length = len(password)
+    strength = 'Weak'
+    if length >= 8 and (has_upper + has_lower + has_digit + has_special) >= 3:
+        strength = 'Strong'
+    elif length >= 6:
+        strength = 'Moderate'
+    return password_type, password_hash, strength
+def main():
+    password = input("Enter a password to analyze: ")
+    password_type, password_hash, strength = analyze_password(password)
+    print("\nPassword Analysis:")
+    print(f"Password: {password}")
+    print(f"Type: {', '.join(password_type) if password_type else 'None'}")
+    print(f"Hash (SHA-256): {password_hash}")
+    print(f"Strength: {strength}")
+if __name__ == "__main__":
+    main()
